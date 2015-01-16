@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.mastfrog</groupId>
+        <artifactId>scamper-chat</artifactId>
+        <version>1.3-dev</version>
+    </parent>
+    <artifactId>scamper-chat-cli</artifactId>
+    <name>Scamper Chat CLI</name>
+    <packaging>jar</packaging>
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>scamper-chat-client-base</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.jansi</groupId>
+            <artifactId>jansi</artifactId>
+            <version>1.11</version>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.mastfrog</groupId>
+                <artifactId>maven-merge-configuration</artifactId>
+                <version>${mastfrog.version}</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <id>compile</id>
+                        <goals>
+                            <goal>merge-configuration</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>com.mastfrog.scamper.chat.cli.CliMain</mainClass>
+                    <jarName>scamper-chat-client</jarName>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
