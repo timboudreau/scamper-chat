@@ -5,7 +5,10 @@ import com.mastfrog.scamper.chat.api.RoomMessage;
 import com.mastfrog.scamper.chat.spi.Client;
 import com.mastfrog.scamper.chat.spi.ClientControl;
 import com.mastfrog.scamper.chat.spi.Room;
+import com.mastfrog.settings.Settings;
 import com.mastfrog.util.Checks;
+import io.netty.channel.ChannelException;
+import java.security.InvalidKeyException;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.inject.Inject;
@@ -22,10 +25,12 @@ public class CliClient implements Client {
 
     private final AtomicReference<ClientControl> control = new AtomicReference<>();
     private final CLI cli;
+    private final Settings settings;
 
     @Inject
-    CliClient(CLI cli) {
+    CliClient(CLI cli, Settings settings) {
         this.cli = cli;
+        this.settings = settings;
     }
 
     @Override
@@ -117,6 +122,23 @@ public class CliClient implements Client {
 
     @Override
     public void onError(Throwable error) {
-        error.printStackTrace();
+        if (error instanceof ChannelException && ((ChannelException) error).getCause() instanceof UnsupportedOperationException) {
+            cli.println(CliMessageType.ERROR, "Your operating system does not support SCTP.");
+            cli.println(CliMessageType.ERROR, "Linux users: install lksctp-tools and restart");
+            System.exit(3);
+        }
+        if (error instanceof InvalidKeyException) {
+            cli.println(CliMessageType.ERROR, "You do not have the Java Cryptography Extensions installed, so encrypted chat will not work.");
+            cli.println(CliMessageType.ERROR, "Get them from http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html and install them in your JDK, then restart");
+            System.out.println("");
+            cli.println(CliMessageType.SYSTEM, "Sending you back to Home in the meantime");
+            control.get().joinRoom("Home");
+            return;
+        }
+        if (settings.getBoolean("stacktraces", false)) {
+            error.printStackTrace();
+        } else {
+            cli.println(CliMessageType.ERROR, error.getClass().getName() + ": " + error.getMessage());
+        }
     }
 }

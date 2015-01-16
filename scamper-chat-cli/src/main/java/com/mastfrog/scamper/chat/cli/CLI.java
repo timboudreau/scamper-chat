@@ -1,6 +1,7 @@
 package com.mastfrog.scamper.chat.cli;
 
 import com.mastfrog.giulius.ShutdownHookRegistry;
+import com.mastfrog.scamper.ErrorHandler;
 import com.mastfrog.scamper.chat.api.RoomMessage;
 import static com.mastfrog.scamper.chat.base.ScamperClient.DEFAULT_HOST;
 import static com.mastfrog.scamper.chat.base.ScamperClient.DEFAULT_PORT;
@@ -50,12 +51,14 @@ public class CLI implements Runnable {
     private final HashedWheelTimer acknowledgementTimer = new HashedWheelTimer();
     private final String host;
     private final int port;
+    private final ErrorHandler errors;
 
     @SuppressWarnings("LeakingThisInConstructor")
     @Inject
-    CLI(ClientControl ctrl, ShutdownHookRegistry reg, Settings settings) {
+    CLI(ClientControl ctrl, ShutdownHookRegistry reg, Settings settings, ErrorHandler errors) {
         this.host = settings.getString("host", DEFAULT_HOST); // for messages
         this.port = settings.getInt("port", DEFAULT_PORT);
+        this.errors = errors;
         AnsiConsole.systemInstall();
         this.ctrl = ctrl;
         reg.add(svc);
@@ -267,7 +270,11 @@ public class CLI implements Runnable {
         onStart();
         try {
             for (String line = console.readLine(); line != null; line = console.readLine()) {
-                onLine(line.trim());
+                try {
+                    onLine(line.trim());
+                } catch (Exception e) {
+                    errors.onError(null, e);
+                }
             }
         } catch (Exception ex) {
             Logger.getLogger(CLI.class.getName()).log(Level.SEVERE, null, ex);
