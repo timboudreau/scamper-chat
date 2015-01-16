@@ -29,6 +29,8 @@ Requirements
 if you  (sorry!) want to use password-protected rooms
  * *Linux Users* need [lksctp-tools](http://lksctp.sourceforge.net/) - if you see an error about loading native libraries, you don't have it
 
+If either of the latter are missing, the client will let you know.
+
 
 Configuration
 -------------
