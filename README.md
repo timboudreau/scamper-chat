@@ -7,6 +7,7 @@ in its wire protocol, and the
 [scamper](https://github.com/timboudreau/scamper) library that makes it easy
 to write protocols using SCTP.
 
+
 Features
 --------
 
@@ -18,6 +19,22 @@ of the password to reject access, but has no way to decrypt messages).
 
 This project serves as a demo of how to write servers with Scamper, in addition
 to being usable in its own right.
+
+
+Configuration
+-------------
+
+The client by default attempts to connect to a public server that is up for the
+time being (no promises), so it can be run with no arguments:
+
+`java -jar scamper-chat-client.jar`
+
+To connect to a different server, pass `--port` and `--host`
+on the command-line, e.g.
+
+`java -jar scamper-chat-client.jar --port 8007 --host foo.bar.com`
+
+The server can be configured similarly using command-line options
 
 
 Subprojects
@@ -34,6 +51,7 @@ classes for clients
 are used by client and server to choose handlers for particular kinds of messages
  * **Scamper Chat Client Base** - Base classes that provide a simple interface for
 writing scamper-chat clients
+
 
 Downloads And Builds
 -----------------------

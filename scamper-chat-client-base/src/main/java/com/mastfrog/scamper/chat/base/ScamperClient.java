@@ -3,9 +3,11 @@ package com.mastfrog.scamper.chat.base;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Module;
+import com.google.inject.Provider;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
 import com.mastfrog.giulius.Dependencies;
+import com.mastfrog.scamper.Address;
 import com.mastfrog.scamper.Control;
 import com.mastfrog.scamper.DataEncoding;
 import com.mastfrog.scamper.SctpServerAndClientBuilder;
@@ -21,6 +23,8 @@ import static com.mastfrog.scamper.chat.messages.ChatMessageTypes.ROOM_JOIN_OR_L
 import static com.mastfrog.scamper.chat.messages.ChatMessageTypes.SERVER_MESSAGE;
 import static com.mastfrog.scamper.chat.messages.ChatMessageTypes.USER_JOINED_ROOM;
 import static com.mastfrog.scamper.chat.messages.ChatMessageTypes.REPLY_LIST_ROOMS;
+import com.mastfrog.settings.Settings;
+import com.mastfrog.settings.SettingsBuilder;
 import java.io.IOException;
 
 /**
@@ -39,6 +43,17 @@ public class ScamperClient {
     }
 
     public <T> T start(Class<T> type, String... args) throws IOException, InterruptedException {
+        return start(null, -1, type, args);
+    }
+
+    public <T> T start(String host, int port, Class<T> type, String... args) throws IOException, InterruptedException {
+        SettingsBuilder sb = new SettingsBuilder();
+        if (host != null) {
+            sb.add("host", host);
+        }
+        if (port > 0) {
+            sb.add("port", "" + port);
+        }
         SctpServerAndClientBuilder builder = new SctpServerAndClientBuilder("date-demo");
         for (Module module : modules) {
             builder.withModule(module);
@@ -46,6 +61,8 @@ public class ScamperClient {
         return builder
                 .withModule(new CompressionModule())
                 .withModule(new ClientModule())
+                .withModule(new BindAddressModule())
+                .withSettings(sb.build())
                 .withDataEncoding(DataEncoding.BSON)
                 .useLoggingHandler()
                 .bind(REPLY_LIST_USERS, ListUsersReplyHandler.class)
@@ -57,6 +74,31 @@ public class ScamperClient {
                 .bind(SERVER_MESSAGE, ServerMessageHandler.class)
                 .bind(REPLY_LIST_ROOMS, ListRoomsReplyHandler.class)
                 .buildInjector(args).getInstance(type);
+    }
+
+    static class BindAddressModule extends AbstractModule {
+
+        @Override
+        protected void configure() {
+            bind(Address.class).toProvider(AddressProvider.class);
+        }
+    }
+
+    static class AddressProvider implements Provider<Address> {
+
+        private final Settings settings;
+
+        @Inject
+        AddressProvider(Settings settings) {
+            this.settings = settings;
+        }
+
+        @Override
+        public Address get() {
+            String host = settings.getString("host", "netbeans.ath.cx");
+            int port = settings.getInt("port", 8007);
+            return new Address(host, port);
+        }
     }
 
     private static class ControlImpl extends Control<Sender> {
