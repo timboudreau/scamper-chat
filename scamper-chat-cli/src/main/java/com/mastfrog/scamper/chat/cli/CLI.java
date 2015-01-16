@@ -2,21 +2,25 @@ package com.mastfrog.scamper.chat.cli;
 
 import com.mastfrog.giulius.ShutdownHookRegistry;
 import com.mastfrog.scamper.chat.api.RoomMessage;
+import static com.mastfrog.scamper.chat.base.ScamperClient.DEFAULT_HOST;
+import static com.mastfrog.scamper.chat.base.ScamperClient.DEFAULT_PORT;
 import com.mastfrog.scamper.chat.spi.ClientControl;
 import com.mastfrog.scamper.chat.spi.Room;
+import com.mastfrog.settings.Settings;
 import io.netty.util.CharsetUtil;
+import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timeout;
+import io.netty.util.TimerTask;
 import java.io.Console;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -43,10 +47,15 @@ public class CLI implements Runnable {
     private final CountDownLatch onExit = new CountDownLatch(1);
     private final Console console = System.console();
     private final Map<String, Encrypter> cryptoForRoom = new HashMap<>();
+    private final HashedWheelTimer acknowledgementTimer = new HashedWheelTimer();
+    private final String host;
+    private final int port;
 
     @SuppressWarnings("LeakingThisInConstructor")
     @Inject
-    CLI(ClientControl ctrl, ShutdownHookRegistry reg) {
+    CLI(ClientControl ctrl, ShutdownHookRegistry reg, Settings settings) {
+        this.host = settings.getString("host", DEFAULT_HOST); // for messages
+        this.port = settings.getInt("port", DEFAULT_PORT);
         AnsiConsole.systemInstall();
         this.ctrl = ctrl;
         reg.add(svc);
@@ -213,41 +222,6 @@ public class CLI implements Runnable {
         sendMessage(line);
     }
 
-    private static final int LIMIT = 120;
-    private static final int ENC_LIMIT = 80;
-
-    private List<String> trim(String s, boolean encrypt) {
-        // Okay, the purpose of this hot little mess:
-        // reassembly of fragmented SCTP messages is not working.
-        // Something is horribly wrong either with the channel
-        // settings, or lksctp or the JDK's sctp implementation.
-        // Basically, if the message is longer than an arbitrary
-        // threshold, then the recipient recieves *multiple* messages
-        // - when part of the point of sctp is that it's message-oriented.
-        // Might be a buffer size issue, or might be something else.
-        //
-        // So for now, we just attempt to ensure that we don't hit the
-        // magic limit and pray.
-        int limit = encrypt ? ENC_LIMIT : LIMIT;
-        if (s.length() < LIMIT) {
-            return Collections.singletonList(s);
-        }
-        List<String> l = new LinkedList<>();
-        StringBuilder curr = new StringBuilder();
-        String[] words = s.split("\\s+");
-        for (String word : words) {
-            if (curr.length() + word.length() + 1 > limit) {
-                l.add(curr.toString());
-                curr = new StringBuilder();
-            }
-            curr.append(word).append(" ");
-        }
-        if (curr.length() > 0) {
-            l.add(curr.toString());
-        }
-        return l;
-    }
-
     private void sendMessage(String line) {
         Room room = this.room.get();
         if (room == null) {
@@ -258,14 +232,31 @@ public class CLI implements Runnable {
                 line = enc.encrypt(line);
             }
             room.send(line);
-//            List<String> lines = trim(line, enc != null);
-//            for (String s : lines) {
-//                if (enc != null) {
-//                    s = enc.encrypt(s);
-//                }
-//                room.send(s);
-//            }
         }
+    }
+
+    volatile int initCount;
+
+    private void onStart() {
+        initCount++;
+        if (initCount == 4) {
+            println(CliMessageType.ERROR, "Could not connect to " + host + ":" + port + " after 3 tries. Exiting.");
+            shutdown();
+        }
+        if (room.get() != null) {
+            return;
+        }
+        ctrl.joinRoom("Home");
+        acknowledgementTimer.newTimeout(new TimerTask() {
+
+            @Override
+            public void run(Timeout timeout) throws Exception {
+                if (room.get() == null) {
+                    println(CliMessageType.SYSTEM, "Failed to connect to " + host + ":" + port + ".  Retrying...");
+                    onStart();
+                }
+            }
+        }, 20, TimeUnit.SECONDS);
     }
 
     @Override
@@ -273,7 +264,7 @@ public class CLI implements Runnable {
         System.out.println(ansi().eraseScreen().a(Attribute.RESET).a(Attribute.INTENSITY_BOLD).a(Attribute.NEGATIVE_ON).a("Welcome to Scamper-Chat"));
         System.out.println(ansi().a(Attribute.INTENSITY_BOLD_OFF).a("For help type /help"));
         System.out.println(ansi().a(Attribute.RESET));
-        ctrl.joinRoom("Home");
+        onStart();
         try {
             for (String line = console.readLine(); line != null; line = console.readLine()) {
                 onLine(line.trim());

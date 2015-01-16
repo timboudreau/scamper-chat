@@ -114,4 +114,9 @@ public class CliClient implements Client {
         ansi = ansi.a(Ansi.Attribute.RESET);
         cli.println(ansi);
     }
+
+    @Override
+    public void onError(Throwable error) {
+        error.printStackTrace();
+    }
 }

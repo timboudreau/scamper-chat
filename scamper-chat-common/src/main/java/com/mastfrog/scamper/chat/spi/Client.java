@@ -32,4 +32,6 @@ public interface Client {
     void onRoomJoinFailed(String room);
     
     void onListRoomsReply(ListRoomsReply rooms);
+    
+    void onError(Throwable error);
 }

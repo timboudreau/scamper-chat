@@ -10,6 +10,7 @@ import com.mastfrog.giulius.Dependencies;
 import com.mastfrog.scamper.Address;
 import com.mastfrog.scamper.Control;
 import com.mastfrog.scamper.DataEncoding;
+import com.mastfrog.scamper.ErrorHandler;
 import com.mastfrog.scamper.SctpServerAndClientBuilder;
 import com.mastfrog.scamper.Sender;
 import com.mastfrog.scamper.compression.CompressionModule;
@@ -25,6 +26,8 @@ import static com.mastfrog.scamper.chat.messages.ChatMessageTypes.USER_JOINED_RO
 import static com.mastfrog.scamper.chat.messages.ChatMessageTypes.REPLY_LIST_ROOMS;
 import com.mastfrog.settings.Settings;
 import com.mastfrog.settings.SettingsBuilder;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelOption;
 import java.io.IOException;
 
 /**
@@ -34,6 +37,8 @@ import java.io.IOException;
 public class ScamperClient {
 
     private final Class<? extends Client> clientType;
+    public static final String DEFAULT_HOST = "netbeans.ath.cx";
+    public static final int DEFAULT_PORT = 8007;
 
     private final Module[] modules;
 
@@ -62,6 +67,7 @@ public class ScamperClient {
                 .withModule(new CompressionModule())
                 .withModule(new ClientModule())
                 .withModule(new BindAddressModule())
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
                 .withSettings(sb.build())
                 .withDataEncoding(DataEncoding.BSON)
                 .useLoggingHandler()
@@ -81,7 +87,24 @@ public class ScamperClient {
         @Override
         protected void configure() {
             bind(Address.class).toProvider(AddressProvider.class);
+            bind(ErrorHandler.class).to(EH.class);
         }
+    }
+
+    static class EH implements ErrorHandler {
+
+        private final Client client;
+
+        @Inject
+        public EH(Client client) {
+            this.client = client;
+        }
+
+        @Override
+        public void onError(ChannelHandlerContext ctx, Throwable t) {
+            client.onError(t);
+        }
+
     }
 
     static class AddressProvider implements Provider<Address> {
@@ -95,8 +118,8 @@ public class ScamperClient {
 
         @Override
         public Address get() {
-            String host = settings.getString("host", "netbeans.ath.cx");
-            int port = settings.getInt("port", 8007);
+            String host = settings.getString("host", DEFAULT_HOST);
+            int port = settings.getInt("port", DEFAULT_PORT);
             return new Address(host, port);
         }
     }
