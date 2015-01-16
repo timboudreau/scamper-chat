@@ -24,7 +24,7 @@ Subprojects
 -----------
 
  * **Scamper Hub** - the server - build and run with `java -jar`
- * **Scamper Chat CLI** - command-line ansi-colored chat client featuring IRC-like commands (`/join`, `/who`, `/rooms`, etc.)
+ * **Scamper Chat CLI** - command-line ansi-colored chat client featuring IRC-like commands (`/join`, `/who`, `/rooms`, etc.) - also build and run with `java -jar`
 
 The rest are supporting projects for those:
 
