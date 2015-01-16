@@ -21,6 +21,15 @@ This project serves as a demo of how to write servers with Scamper, in addition
 to being usable in its own right.
 
 
+Requirements
+------------
+
+ * Java 8
+ * [Cryptography Extensions for Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html) 
+if you  (sorry!) want to use password-protected rooms
+ * *Linux Users* need [lksctp-tools](http://lksctp.sourceforge.net/) - if you see an error about loading native libraries, you don't have it
+
+
 Configuration
 -------------
 
