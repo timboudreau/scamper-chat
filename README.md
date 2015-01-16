@@ -83,3 +83,18 @@ Wire Format
 
 The wire-format is BSON with gzip compression for larger messages; encryption
 is applied to message bodies by the client and decrypted by receiving clients.
+
+
+To-Do
+-----
+
+Plenty of things could be done with this:
+
+ * Get the server working with multiple-associations (SCTP allows a connection to be to multiple redundant machines)
+ * Do something more like [bitchx](http://www.bitchx.com/) for the command-line client - this is complicated by the lack of a reliable way to get terminal dimensions in Java, though [jline](http://jline.sourceforge.net/) looks like it could help
+   * This could be done by assuming a fixed console size, it just wouldn't be pretty
+ * Implement additional IRC-like commands (it would pay to split this stuff out into command-objects in the CLI)
+ * Swap out the JCE Blowfish with BCrypt or some JCE-independent implementation of Twofish to be done with needing the Java crypto extensions - math is not a munition, and the fact that this doesn't come built into Java is a ridiculous artifact of the 90s
+ * Adapter Netty's SSL engine to server/client communication
+   * Use certs to validate that you're really talking to the server you think you are
+
