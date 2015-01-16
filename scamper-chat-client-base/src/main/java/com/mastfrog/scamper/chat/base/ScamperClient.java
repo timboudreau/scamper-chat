@@ -52,6 +52,7 @@ public class ScamperClient {
     }
 
     public <T> T start(String host, int port, Class<T> type, String... args) throws IOException, InterruptedException {
+        SctpServerAndClientBuilder builder = new SctpServerAndClientBuilder("scamper-client");
         SettingsBuilder sb = new SettingsBuilder();
         if (host != null) {
             sb.add("host", host);
@@ -59,18 +60,28 @@ public class ScamperClient {
         if (port > 0) {
             sb.add("port", "" + port);
         }
-        SctpServerAndClientBuilder builder = new SctpServerAndClientBuilder("date-demo");
+        // Let command-line arguments supersede the passed values
+        sb.parseCommandLineArguments(args);
+        Settings settings = sb.build();
+        // Ensure the builder has the right values
+        builder.withHost(settings.getString("host", host == null ? DEFAULT_HOST : host));
+        builder.onPort(settings.getInt("port", port < 0 ? DEFAULT_PORT : port));
+        // Add any passed modules
         for (Module module : modules) {
             builder.withModule(module);
         }
         return builder
+                // Use gzip compression
                 .withModule(new CompressionModule())
+                // bindings for the client
                 .withModule(new ClientModule())
-                .withModule(new BindAddressModule())
+                // set a sane connect timeout
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
-                .withSettings(sb.build())
+                // pass our settings
+                .withSettings(settings)
+                // use BSON - not necessarily smaller, but faster to encode
                 .withDataEncoding(DataEncoding.BSON)
-                .useLoggingHandler()
+                // Bind handlers for each kind of message
                 .bind(REPLY_LIST_USERS, ListUsersReplyHandler.class)
                 .bind(SEND_MESSAGE_TO_ROOM, BroadcastHandler.class)
                 .bind(ACKNOWLEDGE_MESSAGE, AckHandler.class)
@@ -79,16 +90,9 @@ public class ScamperClient {
                 .bind(NICKNAME_CHANGED, NicknameChangedHandler.class)
                 .bind(SERVER_MESSAGE, ServerMessageHandler.class)
                 .bind(REPLY_LIST_ROOMS, ListRoomsReplyHandler.class)
+                // build the injector and return whatever object the caller
+                // requested
                 .buildInjector(args).getInstance(type);
-    }
-
-    static class BindAddressModule extends AbstractModule {
-
-        @Override
-        protected void configure() {
-            bind(Address.class).toProvider(AddressProvider.class);
-            bind(ErrorHandler.class).to(EH.class);
-        }
     }
 
     static class EH implements ErrorHandler {
@@ -154,6 +158,8 @@ public class ScamperClient {
 
         @Override
         protected void configure() {
+            bind(Address.class).toProvider(AddressProvider.class);
+            bind(ErrorHandler.class).to(EH.class);
             bind(Client.class).to(clientType).in(Scopes.SINGLETON);
             bind(ClientControl.class).to(ClientControlImpl.class);
             bind(TL).to(ControlImpl.class);

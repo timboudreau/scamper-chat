@@ -65,3 +65,10 @@ Building is as simple as cloning this repository and running `mvn install` (Mave
    * [Chat Client Base Javadoc](http://timboudreau.com/builds/job/scamper-chat/lastSuccessfulBuild/artifact/scamper-chat-client-base/target/apidocs/index.html)
    * [Scamper-Chat Common Javadoc](http://timboudreau.com/builds/job/scamper-chat/lastSuccessfulBuild/artifact/scamper-chat-common/target/apidocs/index.html)
    * [Scamper-Chat MessageTypes Javadoc](http://timboudreau.com/builds/job/scamper-chat/lastSuccessfulBuild/artifact/scamper-chat-messagetypes/target/apidocs/index.html)
+
+
+Wire Format
+-----------
+
+The wire-format is BSON with gzip compression for larger messages; encryption
+is applied to message bodies by the client and decrypted by receiving clients.
