@@ -31,6 +31,15 @@ import io.netty.channel.ChannelOption;
 import java.io.IOException;
 
 /**
+ * Bootstrap for scamper-chat clients.  To use:  Implements Client and pass
+ * it to the constructor.  Call start(), passing it the type of object that
+ * will launch your UI - typically this will be something that has the client
+ * and an instance of ClientControl in its constructor, which will be injected
+ * into it (annotate your constructor with &#064Inject).  Launch your UI
+ * and call joinRoom() on your ClientControl to initiate a connection with
+ * the server.
+ * <p>
+ * See the scamper-cli project for an example implementation.
  *
  * @author Tim Boudreau
  */
@@ -42,16 +51,50 @@ public class ScamperClient {
 
     private final Module[] modules;
 
+    /**
+     * Create a new ScamperClient to bootstrap your client application.
+     * 
+     * @param clientType The class of your implementation of Client.
+     * @param modules Any Guice modules that set up bindings your code
+     * needs
+     */
     public ScamperClient(Class<? extends Client> clientType, Module... modules) {
         this.clientType = clientType;
         this.modules = modules;
     }
 
-    public <T> T start(Class<T> type, String... args) throws IOException, InterruptedException {
+    /**
+     * Start the client.
+     * 
+     * @param <T> The type you want to be returned
+     * @param type The type you want to be returned
+     * @param args Any command-line arguments passed on the command-line - these
+     * will be interpreted in the form <code>--name value</code> or just
+     * <code>--name</code> for boolean properties, as described in the
+     * documentation of <a href="http://timboudreau.com/builds/job/mastfrog-parent/lastSuccessfulBuild/artifact/giulius-modules/giulius-parent/giulius-settings/target/apidocs/com/mastfrog/settings/SettingsBuilder.html#parseCommandLineArguments-java.lang.String...-">SettingsBuilder</a>.
+     * @return An object of the type you passed, instantiated and injected by Guice
+     * @throws IOException If something goes wrong
+     * @throws InterruptedException If something goes wrong
+     */
+    public <T> T start(Class<T> type, String... args) throws IOException {
         return start(null, -1, type, args);
     }
 
-    public <T> T start(String host, int port, Class<T> type, String... args) throws IOException, InterruptedException {
+    /**
+     * Start the client.
+     * 
+     * @param <T> The type you want to be returned
+     * @param host The default host, if not overridden by the passed command-line arguments (e.g. <code>--host foo.com</code>)
+     * @param port The defaullt port, if not overridden by the passed command-line arguments (e.g. <code>--port 8007</code>).
+     * @param type The type you want to be returned
+     * @param args Any command-line arguments passed on the command-line - these
+     * will be interpreted in the form <code>--name value</code> or just
+     * <code>--name</code> for boolean properties, as described in the
+     * documentation of <a href="http://timboudreau.com/builds/job/mastfrog-parent/lastSuccessfulBuild/artifact/giulius-modules/giulius-parent/giulius-settings/target/apidocs/com/mastfrog/settings/SettingsBuilder.html#parseCommandLineArguments-java.lang.String...-">SettingsBuilder</a>.
+     * @return
+     * @throws IOException 
+     */
+    public <T> T start(String host, int port, Class<T> type, String... args) throws IOException {
         SctpServerAndClientBuilder builder = new SctpServerAndClientBuilder("scamper-client");
         SettingsBuilder sb = new SettingsBuilder();
         if (host != null) {

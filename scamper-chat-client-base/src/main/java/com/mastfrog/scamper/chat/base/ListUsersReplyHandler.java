@@ -11,7 +11,7 @@ import io.netty.channel.ChannelHandlerContext;
  *
  * @author Tim Boudreau
  */
-public class ListUsersReplyHandler extends MessageHandler<Void, ListUsersReply> {
+final class ListUsersReplyHandler extends MessageHandler<Void, ListUsersReply> {
     private final Client client;
 
     @Inject

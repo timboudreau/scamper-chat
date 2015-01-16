@@ -11,7 +11,7 @@ import io.netty.channel.ChannelHandlerContext;
  *
  * @author Tim Boudreau
  */
-public class NicknameChangedHandler extends MessageHandler<Void, NameChangeNotification> {
+final class NicknameChangedHandler extends MessageHandler<Void, NameChangeNotification> {
 
     private final Client client;
 

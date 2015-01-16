@@ -11,7 +11,7 @@ import io.netty.channel.ChannelHandlerContext;
  *
  * @author Tim Boudreau
  */
-public class JoinLeaveHandler extends MessageHandler<Void, JoinLeaveNotification> {
+final class JoinLeaveHandler extends MessageHandler<Void, JoinLeaveNotification> {
     private final Client client;
     
     @Inject
