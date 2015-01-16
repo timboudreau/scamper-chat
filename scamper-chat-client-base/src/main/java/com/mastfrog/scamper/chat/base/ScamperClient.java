@@ -21,8 +21,6 @@ import static com.mastfrog.scamper.chat.messages.ChatMessageTypes.ROOM_JOIN_OR_L
 import static com.mastfrog.scamper.chat.messages.ChatMessageTypes.SERVER_MESSAGE;
 import static com.mastfrog.scamper.chat.messages.ChatMessageTypes.USER_JOINED_ROOM;
 import static com.mastfrog.scamper.chat.messages.ChatMessageTypes.REPLY_LIST_ROOMS;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.sctp.SctpChannelOption;
 import java.io.IOException;
 
 /**
