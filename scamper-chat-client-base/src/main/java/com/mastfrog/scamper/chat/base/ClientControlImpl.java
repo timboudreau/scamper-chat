@@ -121,5 +121,27 @@ class ClientControlImpl implements ClientControl {
         public String toString() {
             return room + " (" + initialMembers + ")";
         }
+        
+        ClientControlImpl outer() {
+            return ClientControlImpl.this;
+        }
+        
+        public boolean equals(Object o) {
+            if (o == this) {
+                return true;
+            }
+            if (o == null) {
+                return false;
+            }
+            if (o instanceof RoomImpl) {
+                RoomImpl other = (RoomImpl) o;
+                return other.room.equals(this.room) && other.outer().equals(ClientControlImpl.this);
+            }
+            return false;
+        }
+        
+        public int hashCode() {
+            return room.hashCode() + 23 * ClientControlImpl.this.hashCode();
+        }
     }
 }

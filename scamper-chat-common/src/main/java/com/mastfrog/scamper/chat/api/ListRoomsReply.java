@@ -3,6 +3,7 @@ package com.mastfrog.scamper.chat.api;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mastfrog.scamper.chat.api.ListRoomsReply.RoomInfo;
+import com.mastfrog.util.Checks;
 import com.mastfrog.util.collections.CollectionUtils;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -73,6 +74,7 @@ public class ListRoomsReply implements Iterable<RoomInfo> {
 
         @JsonCreator
         public RoomInfo(@JsonProperty("name") String name, @JsonProperty("hasPassword") boolean hasPassword, @JsonProperty("participants") String[] participants) {
+            Checks.notNull("name", name);
             this.name = name;
             this.hasPassword = hasPassword;
             this.participants = participants;
@@ -81,6 +83,31 @@ public class ListRoomsReply implements Iterable<RoomInfo> {
         @Override
         public Iterator<String> iterator() {
             return CollectionUtils.toIterator(participants);
+        }
+
+        public boolean equals(Object o) {
+            return o instanceof RoomInfo && ((RoomInfo) o).name.equals(name);
+        }
+
+        public int hashCode() {
+            return 23 * name.hashCode();
+        }
+
+        public String toString() {
+            StringBuilder sb = new StringBuilder(name);
+            if (hasPassword) {
+                sb.append("(pw)");
+            }
+            if (participants != null) {
+                sb.append(": ");
+                for (Iterator<String> iter=CollectionUtils.toIterator(participants); iter.hasNext();) {
+                    sb.append(iter.next());
+                    if (iter.hasNext()) {
+                        sb.append(", ");
+                    }
+                }
+            }
+            return sb.toString();
         }
 
         public static final class Builder {

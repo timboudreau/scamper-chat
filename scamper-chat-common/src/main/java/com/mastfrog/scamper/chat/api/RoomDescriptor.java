@@ -34,4 +34,8 @@ public class RoomDescriptor implements Serializable {
     public int hashCode() {
         return room.hashCode();
     }
+    
+    public String toString() {
+        return "Join " + room + " from " + userName + (roomPassword == null ? "" : "(password)");
+    }
 }
