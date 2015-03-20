@@ -33,8 +33,6 @@ public class NewRoomPanel extends javax.swing.JPanel implements DocumentListener
         super.addNotify();
         roomField.requestFocus();
     }
-    
-    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -132,15 +130,15 @@ public class NewRoomPanel extends javax.swing.JPanel implements DocumentListener
         final JOptionPane jp = new JOptionPane(this, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
         JDialog dlg = jp.createDialog(null, "New Room");
         jp.setInitialValue(roomField);
-        
+
         PropertyChangeListener pcl = new PropertyChangeListener() {
 
             @Override
             public void propertyChange(PropertyChangeEvent pce) {
                 if (isOk()) {
-                    jp.setOptions(new Object[] { JOptionPane.OK_OPTION, JOptionPane.CANCEL_OPTION });
+                    jp.setOptions(new Object[]{JOptionPane.OK_OPTION, JOptionPane.CANCEL_OPTION});
                 } else {
-                    jp.setOptions(new Object[] { JOptionPane.CANCEL_OPTION });
+                    jp.setOptions(new Object[]{JOptionPane.CANCEL_OPTION});
                 }
             }
         };
@@ -148,7 +146,6 @@ public class NewRoomPanel extends javax.swing.JPanel implements DocumentListener
         try {
             dlg.setVisible(true);
             Object sel = jp.getValue();
-            System.out.println("SEL IS " + sel);
             if (sel != null && sel == (Integer) 0) {
                 if (passwordEnabledCheckbox.isSelected()) {
                     return new String[]{roomField.getText().trim(), passwordField.getText().trim()};

@@ -27,4 +27,26 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.mastfrog</groupId>
+                <artifactId>maven-merge-configuration</artifactId>
+                <version>${mastfrog.version}</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <id>compile</id>
+                        <goals>
+                            <goal>merge-configuration</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>com.timboudreau.scamper.chat.swing.client.SwingClient</mainClass>
+                    <jarName>scamper-chat-swing-client</jarName>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>    
 </project>

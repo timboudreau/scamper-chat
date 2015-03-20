@@ -66,7 +66,7 @@ public class ListRoomsReply implements Iterable<RoomInfo> {
         }
     }
 
-    public static class RoomInfo implements Iterable<String> {
+    public static class RoomInfo implements Iterable<String>, Comparable<RoomInfo> {
 
         public final String name;
         public final boolean hasPassword;
@@ -85,10 +85,12 @@ public class ListRoomsReply implements Iterable<RoomInfo> {
             return CollectionUtils.toIterator(participants);
         }
 
+        @Override
         public boolean equals(Object o) {
             return o instanceof RoomInfo && ((RoomInfo) o).name.equals(name);
         }
 
+        @Override
         public int hashCode() {
             return 23 * name.hashCode();
         }
@@ -108,6 +110,11 @@ public class ListRoomsReply implements Iterable<RoomInfo> {
                 }
             }
             return sb.toString();
+        }
+
+        @Override
+        public int compareTo(RoomInfo t) {
+            return name.compareToIgnoreCase(t.name);
         }
 
         public static final class Builder {

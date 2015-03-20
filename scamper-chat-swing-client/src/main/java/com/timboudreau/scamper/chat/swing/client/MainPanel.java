@@ -6,6 +6,7 @@
 package com.timboudreau.scamper.chat.swing.client;
 
 import com.timboudreau.scamper.chat.swing.client.Prefs.PrefsListener;
+import com.timboudreau.scamper.chat.swing.client.UIModels.DialogListener;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -40,7 +41,7 @@ import javax.swing.text.BadLocationException;
  *
  * @author Tim Boudreau
  */
-public class MainPanel extends javax.swing.JPanel implements NotificationListener, PrefsListener, DocumentListener {
+public class MainPanel extends javax.swing.JPanel implements NotificationListener, PrefsListener, DocumentListener, DialogListener {
 
     private final UIModels mdls;
 
@@ -61,7 +62,8 @@ public class MainPanel extends javax.swing.JPanel implements NotificationListene
         membersList.setModel(mdls.roomMembers());
         roomsList.setSelectionModel(mdls.selectedRoom());
         roomsList.setModel(mdls.rooms());
-        roomsList.setCellRenderer(new RoomInfoCellRenderer());
+        roomsList.setCellRenderer(mdls.roomRenderer());
+        membersList.setCellRenderer(mdls.roomRenderer());
         inputTextArea.setDocument(mdls.chatEntryDocument());
         inputTextArea.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, true), "send");
         inputTextArea.getActionMap().put("send", mdls.sendAction());
@@ -103,6 +105,11 @@ public class MainPanel extends javax.swing.JPanel implements NotificationListene
         am.put("dn", new RoomMove(false));
 
         chatEditorPane.getDocument().addDocumentListener(this);
+    }
+
+    @Override
+    public void onDialogClosed() {
+        inputTextArea.requestFocus();
     }
     
     class CtrlEntrAction extends AbstractAction {
@@ -204,7 +211,8 @@ public class MainPanel extends javax.swing.JPanel implements NotificationListene
         super.addNotify();
         mdls.checkRooms();
         startTimer();
-        inputTextArea.requestFocusInWindow();
+        inputTextArea.requestFocus();
+        mainSplit.doLayout();
     }
 
     public void removeNotify() {
@@ -282,13 +290,16 @@ public class MainPanel extends javax.swing.JPanel implements NotificationListene
         nicknameButton = new javax.swing.JButton();
         notificationLabel = new javax.swing.JLabel();
 
-        mainSplit.setDividerLocation(200);
+        mainSplit.setDividerLocation(220);
 
         roomAndMembersSplit.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
 
         roomsLabel.setFont(roomsLabel.getFont().deriveFont(roomsLabel.getFont().getStyle() | java.awt.Font.BOLD, roomsLabel.getFont().getSize()+2));
+        roomsLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         roomsLabel.setLabelFor(roomsList);
         roomsLabel.setText("Rooms");
+        roomsLabel.setToolTipText("Chat rooms you can participate in");
+        roomsLabel.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
         roomsList.setModel(new javax.swing.AbstractListModel() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
@@ -298,30 +309,36 @@ public class MainPanel extends javax.swing.JPanel implements NotificationListene
         roomsScroll.setViewportView(roomsList);
 
         newRoomButton.setText("New");
+        newRoomButton.setToolTipText("Create a new room or join a hidden room");
 
         joinRoomButton.setText("Join");
+        joinRoomButton.setToolTipText("Join the selected room");
 
         javax.swing.GroupLayout roomsPanelLayout = new javax.swing.GroupLayout(roomsPanel);
         roomsPanel.setLayout(roomsPanelLayout);
         roomsPanelLayout.setHorizontalGroup(
             roomsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(roomsScroll)
             .addGroup(roomsPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(roomsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(roomsLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(roomsPanelLayout.createSequentialGroup()
                         .addComponent(newRoomButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(joinRoomButton))
-                    .addComponent(roomsLabel))
-                .addContainerGap(38, Short.MAX_VALUE))
-            .addComponent(roomsScroll)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 51, Short.MAX_VALUE)
+                        .addComponent(joinRoomButton)))
+                .addContainerGap())
         );
+
+        roomsPanelLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {joinRoomButton, newRoomButton});
+
         roomsPanelLayout.setVerticalGroup(
             roomsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(roomsPanelLayout.createSequentialGroup()
+                .addContainerGap()
                 .addComponent(roomsLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(roomsScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 166, Short.MAX_VALUE)
+                .addComponent(roomsScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 154, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(roomsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(newRoomButton)
@@ -332,8 +349,11 @@ public class MainPanel extends javax.swing.JPanel implements NotificationListene
         roomAndMembersSplit.setTopComponent(roomsPanel);
 
         membersLabel.setFont(membersLabel.getFont().deriveFont(membersLabel.getFont().getStyle() | java.awt.Font.BOLD, membersLabel.getFont().getSize()+2));
+        membersLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         membersLabel.setLabelFor(membersList);
         membersLabel.setText("Members");
+        membersLabel.setToolTipText("Nicknames of people chatting in this room");
+        membersLabel.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
         membersList.setModel(new javax.swing.AbstractListModel() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
@@ -349,15 +369,16 @@ public class MainPanel extends javax.swing.JPanel implements NotificationListene
             .addComponent(membersScroll)
             .addGroup(membersPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(membersLabel)
-                .addContainerGap(95, Short.MAX_VALUE))
+                .addComponent(membersLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 193, Short.MAX_VALUE)
+                .addContainerGap())
         );
         membersPanelLayout.setVerticalGroup(
             membersPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(membersPanelLayout.createSequentialGroup()
+                .addContainerGap()
                 .addComponent(membersLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(membersScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 407, Short.MAX_VALUE))
+                .addComponent(membersScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 395, Short.MAX_VALUE))
         );
 
         roomAndMembersSplit.setRightComponent(membersPanel);
@@ -374,7 +395,7 @@ public class MainPanel extends javax.swing.JPanel implements NotificationListene
         chatPanel.setLayout(chatPanelLayout);
         chatPanelLayout.setHorizontalGroup(
             chatPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(chatScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 912, Short.MAX_VALUE)
+            .addComponent(chatScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 892, Short.MAX_VALUE)
         );
         chatPanelLayout.setVerticalGroup(
             chatPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -383,13 +404,16 @@ public class MainPanel extends javax.swing.JPanel implements NotificationListene
 
         mainChatSplit.setTopComponent(chatPanel);
 
-        sendButton.setText("jButton3");
+        sendButton.setText("Send");
+        sendButton.setToolTipText("Send the Text you've typed (or just press enter)");
 
         inputTextArea.setColumns(20);
         inputTextArea.setRows(5);
+        inputTextArea.setToolTipText("Type your chat text here");
         inputScroll.setViewportView(inputTextArea);
 
         nicknameButton.setText("Nickname");
+        nicknameButton.setToolTipText("Set the name people will see when you type");
         nicknameButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 nicknameButtonActionPerformed(evt);
@@ -401,7 +425,7 @@ public class MainPanel extends javax.swing.JPanel implements NotificationListene
         inputPanelLayout.setHorizontalGroup(
             inputPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, inputPanelLayout.createSequentialGroup()
-                .addComponent(inputScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 764, Short.MAX_VALUE)
+                .addComponent(inputScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 744, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(inputPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(sendButton)
@@ -427,6 +451,7 @@ public class MainPanel extends javax.swing.JPanel implements NotificationListene
         mainSplit.setRightComponent(mainChatSplit);
 
         notificationLabel.setText(" ");
+        notificationLabel.setOpaque(true);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -438,7 +463,7 @@ public class MainPanel extends javax.swing.JPanel implements NotificationListene
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(mainSplit)
+                .addComponent(mainSplit, javax.swing.GroupLayout.DEFAULT_SIZE, 708, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(notificationLabel))
         );
@@ -476,7 +501,8 @@ public class MainPanel extends javax.swing.JPanel implements NotificationListene
 
     @Override
     public void onNotification(Notification notif) {
-        notificationLabel.setText(notif.type.name() + ": " + notif.message);
+        notificationLabel.setForeground(notif.type.foreground());
+        notificationLabel.setText(notif.message);
     }
 
     @Override

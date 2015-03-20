@@ -23,7 +23,7 @@
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
-              <Component id="mainSplit" max="32767" attributes="0"/>
+              <Component id="mainSplit" pref="708" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="notificationLabel" min="-2" max="-2" attributes="0"/>
           </Group>
@@ -33,7 +33,7 @@
   <SubComponents>
     <Container class="javax.swing.JSplitPane" name="mainSplit">
       <Properties>
-        <Property name="dividerLocation" type="int" value="200"/>
+        <Property name="dividerLocation" type="int" value="220"/>
       </Properties>
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout"/>
@@ -60,27 +60,28 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" attributes="0">
+                      <Component id="roomsScroll" alignment="0" max="32767" attributes="0"/>
+                      <Group type="102" alignment="0" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Group type="102" alignment="0" attributes="0">
-                                  <Component id="newRoomButton" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="joinRoomButton" min="-2" max="-2" attributes="0"/>
+                              <Component id="roomsLabel" max="32767" attributes="0"/>
+                              <Group type="102" attributes="0">
+                                  <Component id="newRoomButton" linkSize="2" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace pref="51" max="32767" attributes="0"/>
+                                  <Component id="joinRoomButton" linkSize="2" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <Component id="roomsLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace pref="38" max="32767" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
                       </Group>
-                      <Component id="roomsScroll" alignment="0" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
+                          <EmptySpace max="-2" attributes="0"/>
                           <Component id="roomsLabel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="roomsScroll" pref="166" max="32767" attributes="0"/>
+                          <Component id="roomsScroll" pref="154" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="newRoomButton" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -99,10 +100,13 @@
                         <Font bold="true" component="roomsLabel" property="font" relativeSize="true" size="2"/>
                       </FontInfo>
                     </Property>
+                    <Property name="horizontalAlignment" type="int" value="0"/>
                     <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
                       <ComponentRef name="roomsList"/>
                     </Property>
                     <Property name="text" type="java.lang.String" value="Rooms"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Chat rooms you can participate in"/>
+                    <Property name="horizontalTextPosition" type="int" value="0"/>
                   </Properties>
                 </Component>
                 <Container class="javax.swing.JScrollPane" name="roomsScroll">
@@ -130,11 +134,13 @@
                 <Component class="javax.swing.JButton" name="newRoomButton">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="New"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Create a new room or join a hidden room"/>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JButton" name="joinRoomButton">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Join"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Join the selected room"/>
                   </Properties>
                 </Component>
               </SubComponents>
@@ -152,17 +158,18 @@
                       <Component id="membersScroll" max="32767" attributes="0"/>
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="membersLabel" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="95" max="32767" attributes="0"/>
+                          <Component id="membersLabel" pref="193" max="32767" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
+                          <EmptySpace max="-2" attributes="0"/>
                           <Component id="membersLabel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="membersScroll" pref="407" max="32767" attributes="0"/>
+                          <Component id="membersScroll" pref="395" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -175,10 +182,13 @@
                         <Font bold="true" component="membersLabel" property="font" relativeSize="true" size="2"/>
                       </FontInfo>
                     </Property>
+                    <Property name="horizontalAlignment" type="int" value="0"/>
                     <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
                       <ComponentRef name="membersList"/>
                     </Property>
                     <Property name="text" type="java.lang.String" value="Members"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Nicknames of people chatting in this room"/>
+                    <Property name="horizontalTextPosition" type="int" value="0"/>
                   </Properties>
                 </Component>
                 <Container class="javax.swing.JScrollPane" name="membersScroll">
@@ -230,7 +240,7 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="chatScroll" alignment="0" pref="912" max="32767" attributes="0"/>
+                      <Component id="chatScroll" alignment="0" pref="892" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
@@ -267,7 +277,7 @@
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="1" attributes="0">
-                          <Component id="inputScroll" pref="764" max="32767" attributes="0"/>
+                          <Component id="inputScroll" pref="744" max="32767" attributes="0"/>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Component id="sendButton" linkSize="1" min="-2" max="-2" attributes="0"/>
@@ -293,7 +303,8 @@
               <SubComponents>
                 <Component class="javax.swing.JButton" name="sendButton">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="jButton3"/>
+                    <Property name="text" type="java.lang.String" value="Send"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Send the Text you&apos;ve typed (or just press enter)"/>
                   </Properties>
                 </Component>
                 <Container class="javax.swing.JScrollPane" name="inputScroll">
@@ -307,6 +318,7 @@
                       <Properties>
                         <Property name="columns" type="int" value="20"/>
                         <Property name="rows" type="int" value="5"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Type your chat text here"/>
                       </Properties>
                     </Component>
                   </SubComponents>
@@ -314,6 +326,7 @@
                 <Component class="javax.swing.JButton" name="nicknameButton">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Nickname"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Set the name people will see when you type"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="nicknameButtonActionPerformed"/>
@@ -328,6 +341,7 @@
     <Component class="javax.swing.JLabel" name="notificationLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value=" "/>
+        <Property name="opaque" type="boolean" value="true"/>
       </Properties>
     </Component>
   </SubComponents>

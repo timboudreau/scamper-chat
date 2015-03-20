@@ -102,6 +102,7 @@ public class PrefsPanel extends javax.swing.JPanel implements DocumentListener {
         if (ufs != prefs.getUiFontSize()) {
             result.add(PrefValue.UI_FONT);
         }
+        System.out.println("CHANGES: " + result);
         return result;
     }
 
@@ -120,7 +121,6 @@ public class PrefsPanel extends javax.swing.JPanel implements DocumentListener {
         try {
             dlg.setVisible(true);
             Object sel = jp.getValue();
-            System.out.println("SEL IS " + sel);
             if (sel != null && sel == (Integer) 0) {
                 Set<PrefValue> changes = changes();
                 if (!changes.isEmpty()) {

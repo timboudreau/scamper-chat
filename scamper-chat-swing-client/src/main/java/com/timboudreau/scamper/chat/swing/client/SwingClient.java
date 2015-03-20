@@ -88,12 +88,19 @@ public class SwingClient implements Client {
     @Override
     public void onServerMessage(String message, boolean shutdownAdvised) {
         ui.onNotification(NotificationType.SERVER.notification(message));
+        if (shutdownAdvised) {
+            ui.onNotification(NotificationType.SERVER.notification("Shutdown advised"));
+        }
     }
 
     @Override
     public void onListUsersReply(String room, String users) {
         if (ui.isRoom(room)) {
-            ui.setRoomMembers(users.split(","));
+            String[] u = users.split(",");
+            for (int i = 0; i < u.length; i++) {
+                u[i] = u[i].trim();
+            }
+            ui.setRoomMembers(u);
         }
     }
 
@@ -112,16 +119,26 @@ public class SwingClient implements Client {
         ui.onNotification(NotificationType.ERROR.notification(error.getMessage() == null ? error.getClass().getName() : error.getMessage()));
     }
 
+    static PrefsListener pl;
+
+    static {
+        System.setProperty("sun.java2d.dpiaware", "true");
+        System.setProperty("swing.aatext", "true");
+        System.setProperty("awt.useSystemAAFontSettings", "lcd");
+    }
+
     public static void main(final String[] args) throws IOException, InterruptedException, UnsupportedLookAndFeelException {
         System.setProperty("io.netty.leakDetectionLevel", "disable");
-        UIManager.setLookAndFeel(new NimbusLookAndFeel());
-        Class<? extends Client> x = SwingClient.class;
-
+        try {
+            UIManager.setLookAndFeel(new NimbusLookAndFeel());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         final Prefs prefs = new Prefs();
         final ScamperClient client = new ScamperClient(SwingClient.class, new PrefsModule(prefs));
         final UIModels mdls = client.start(prefs.getHost(), prefs.getPort(), UIModels.class, args);
         final AtomicReference<MainPanel> pnl = new AtomicReference<>();
-        prefs.addListener(new PrefsListener(){
+        prefs.addListener(pl = new PrefsListener() {
 
             @Override
             public void change(Set<Prefs.PrefValue> set, Prefs src) {
@@ -148,7 +165,7 @@ public class SwingClient implements Client {
                     });
                 }
             }
-            
+
         });
 
         EventQueue.invokeLater(new Runnable() {

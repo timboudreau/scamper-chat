@@ -2,10 +2,13 @@ package com.timboudreau.scamper.chat.swing.client;
 
 import com.mastfrog.scamper.chat.base.ScamperClient;
 import java.awt.Font;
+import java.awt.GraphicsEnvironment;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,9 +32,22 @@ public class Prefs {
     public static final String PREFS_KEY_UI_FONT_SIZE = "uifontsize";
     public static final String PREFS_KEY_MSG_FONT_SIZE = "messagefontsize";
     private final List<Reference<PrefsListener>> listeners = new LinkedList<>();
+    
+    private final String defaultFont;
 
     Prefs() {
-
+        Set<String> fontNames = new HashSet<>(Arrays.asList(GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames()));
+        if (fontNames.contains("Source Code Pro")) {
+            defaultFont = "Source Code Pro";
+        } else if (fontNames.contains("Liberation Sans")) {
+            defaultFont = "Liberation Sans";
+        } else if (fontNames.contains("Ubuntu")) {
+            defaultFont = "Ubuntu";
+        } else if (fontNames.contains("Trebuchet MS")) {
+            defaultFont = "Trebuchet MS";
+        } else {
+            defaultFont = "Dialog";
+        }
     }
 
     void addListener(PrefsListener l) {
@@ -48,7 +64,8 @@ public class Prefs {
     }
 
     String getUserName() {
-        return prefs.get("userName", "Me");
+        String nm = System.getProperty("user.name");
+        return prefs.get("userName", nm == null ? "Me" : nm);
     }
 
     public String getHost() {
@@ -76,7 +93,7 @@ public class Prefs {
     }
 
     public String getUiFontName() {
-        return prefs.get(PREFS_KEY_UI_FONT_NAME, "Dialog");
+        return prefs.get(PREFS_KEY_UI_FONT_NAME, defaultFont);
     }
 
     public int getUiFontSize() {
@@ -92,7 +109,7 @@ public class Prefs {
     }
 
     public String getMessageFontName() {
-        return prefs.get(PREFS_KEY_MSG_FONT_NAME, "Dialog");
+        return prefs.get(PREFS_KEY_MSG_FONT_NAME, defaultFont);
     }
 
     public int getMessageFontSize() {

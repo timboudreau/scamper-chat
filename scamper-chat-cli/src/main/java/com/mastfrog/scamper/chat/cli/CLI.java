@@ -1,5 +1,6 @@
 package com.mastfrog.scamper.chat.cli;
 
+import com.mastfrog.scamper.chat.crypto.Encrypter;
 import com.mastfrog.giulius.ShutdownHookRegistry;
 import com.mastfrog.scamper.ErrorHandler;
 import com.mastfrog.scamper.chat.api.RoomMessage;
