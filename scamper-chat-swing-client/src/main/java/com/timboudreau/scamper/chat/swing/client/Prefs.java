@@ -1,5 +1,6 @@
 package com.timboudreau.scamper.chat.swing.client;
 
+import static com.mastfrog.scamper.ProtocolModule.SETTINGS_KEY_SCTP_PORT;
 import com.mastfrog.scamper.chat.base.ScamperClient;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
@@ -73,7 +74,7 @@ public class Prefs {
     }
 
     public int getPort() {
-        return prefs.getInt("port", ScamperClient.DEFAULT_PORT);
+        return prefs.getInt(SETTINGS_KEY_SCTP_PORT, ScamperClient.DEFAULT_PORT);
     }
 
     public void setPort(int val) {

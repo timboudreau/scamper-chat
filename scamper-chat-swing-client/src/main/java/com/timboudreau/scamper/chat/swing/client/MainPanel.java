@@ -378,7 +378,7 @@ public class MainPanel extends javax.swing.JPanel implements NotificationListene
                 .addContainerGap()
                 .addComponent(membersLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(membersScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 395, Short.MAX_VALUE))
+                .addComponent(membersScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE))
         );
 
         roomAndMembersSplit.setRightComponent(membersPanel);
@@ -443,7 +443,7 @@ public class MainPanel extends javax.swing.JPanel implements NotificationListene
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(sendButton)
                 .addContainerGap())
-            .addComponent(inputScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 135, Short.MAX_VALUE)
+            .addComponent(inputScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 145, Short.MAX_VALUE)
         );
 
         mainChatSplit.setRightComponent(inputPanel);
@@ -451,6 +451,7 @@ public class MainPanel extends javax.swing.JPanel implements NotificationListene
         mainSplit.setRightComponent(mainChatSplit);
 
         notificationLabel.setText(" ");
+        notificationLabel.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 12, 0, 5));
         notificationLabel.setOpaque(true);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -463,7 +464,7 @@ public class MainPanel extends javax.swing.JPanel implements NotificationListene
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(mainSplit, javax.swing.GroupLayout.DEFAULT_SIZE, 708, Short.MAX_VALUE)
+                .addComponent(mainSplit)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(notificationLabel))
         );

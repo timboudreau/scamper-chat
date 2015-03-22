@@ -11,6 +11,7 @@ import com.mastfrog.scamper.Address;
 import com.mastfrog.scamper.Control;
 import com.mastfrog.scamper.DataEncoding;
 import com.mastfrog.scamper.ErrorHandler;
+import static com.mastfrog.scamper.ProtocolModule.SETTINGS_KEY_SCTP_PORT;
 import com.mastfrog.scamper.SctpServerAndClientBuilder;
 import com.mastfrog.scamper.Sender;
 import com.mastfrog.scamper.compression.CompressionModule;
@@ -101,14 +102,14 @@ public class ScamperClient {
             sb.add("host", host);
         }
         if (port > 0) {
-            sb.add("port", "" + port);
+            sb.add(SETTINGS_KEY_SCTP_PORT, "" + port);
         }
         // Let command-line arguments supersede the passed values
         sb.parseCommandLineArguments(args);
         Settings settings = sb.build();
         // Ensure the builder has the right values
         builder.withHost(settings.getString("host", host == null ? DEFAULT_HOST : host));
-        builder.onPort(settings.getInt("port", port < 0 ? DEFAULT_PORT : port));
+        builder.onPort(settings.getInt(SETTINGS_KEY_SCTP_PORT, port < 0 ? DEFAULT_PORT : port));
         // Add any passed modules
         for (Module module : modules) {
             builder.withModule(module);

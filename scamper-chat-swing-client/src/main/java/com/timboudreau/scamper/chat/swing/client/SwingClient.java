@@ -122,13 +122,17 @@ public class SwingClient implements Client {
     static PrefsListener pl;
 
     static {
-        System.setProperty("sun.java2d.dpiaware", "true");
-        System.setProperty("swing.aatext", "true");
-        System.setProperty("awt.useSystemAAFontSettings", "lcd");
+        try {
+            System.setProperty("sun.java2d.dpiaware", "true");
+            System.setProperty("swing.aatext", "true");
+            System.setProperty("awt.useSystemAAFontSettings", "lcd");
+            System.setProperty("io.netty.leakDetectionLevel", "disable");
+        } catch (SecurityException ex) {
+
+        }
     }
 
     public static void main(final String[] args) throws IOException, InterruptedException, UnsupportedLookAndFeelException {
-        System.setProperty("io.netty.leakDetectionLevel", "disable");
         try {
             UIManager.setLookAndFeel(new NimbusLookAndFeel());
         } catch (Exception e) {
