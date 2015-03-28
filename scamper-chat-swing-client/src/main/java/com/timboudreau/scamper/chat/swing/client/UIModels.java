@@ -1,5 +1,6 @@
 package com.timboudreau.scamper.chat.swing.client;
 
+import static com.mastfrog.scamper.ProtocolModule.GUICE_BINDING_SCAMPER_BOSS_THREADS;
 import com.mastfrog.scamper.chat.api.ListRoomsReply;
 import com.mastfrog.scamper.chat.api.ListRoomsReply.RoomInfo;
 import com.mastfrog.scamper.chat.api.RoomMessage;
@@ -48,7 +49,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Document;
 import javax.swing.text.PlainDocument;
-import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
@@ -90,7 +90,7 @@ public class UIModels {
     private String userName;
 
     @Inject
-    UIModels(ClientControl ctrl, @Named("worker") EventLoopGroup workerThreadPool, Prefs prefs) {
+    UIModels(ClientControl ctrl, @Named(GUICE_BINDING_SCAMPER_BOSS_THREADS) EventLoopGroup workerThreadPool, Prefs prefs) {
         userName = prefs.getUserName();
         this.ctrl = ctrl;
         renderer = new RoomInfoCellRenderer(this);

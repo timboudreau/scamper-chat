@@ -16,12 +16,15 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.InputMap;
@@ -63,15 +66,16 @@ public class MainPanel extends javax.swing.JPanel implements NotificationListene
         roomsList.setSelectionModel(mdls.selectedRoom());
         roomsList.setModel(mdls.rooms());
         roomsList.setCellRenderer(mdls.roomRenderer());
+        roomsList.addMouseListener(new RoomListDoubleClickListener());
         membersList.setCellRenderer(mdls.roomRenderer());
         inputTextArea.setDocument(mdls.chatEntryDocument());
-        inputTextArea.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, true), "send");
-        inputTextArea.getActionMap().put("send", mdls.sendAction());
         nicknameButton.setAction(mdls.nameAction());
         mdls.addNotificationListener(this);
         fixBorders(this);
         updateFonts(prefs);
         prefs.addListener(this);
+        inputTextArea.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, true), "send");
+        inputTextArea.getActionMap().put("send", mdls.sendAction());
         InputMap in = getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
         ActionMap am = getActionMap();
         in.put(KeyStroke.getKeyStroke(KeyEvent.VK_P, KeyEvent.CTRL_DOWN_MASK), "prefs");
@@ -87,7 +91,7 @@ public class MainPanel extends javax.swing.JPanel implements NotificationListene
 
         in.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, KeyEvent.CTRL_DOWN_MASK), "etr");
         am.put("etr", new CtrlEntrAction());
-        
+
         in.put(KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.ALT_DOWN_MASK), "file");
         am.put("file", new MnemonicAction(mdls.fileMenu()));
         in.put(KeyStroke.getKeyStroke(KeyEvent.VK_E, KeyEvent.ALT_DOWN_MASK), "edit");
@@ -111,7 +115,18 @@ public class MainPanel extends javax.swing.JPanel implements NotificationListene
     public void onDialogClosed() {
         inputTextArea.requestFocus();
     }
-    
+
+    class RoomListDoubleClickListener extends MouseAdapter {
+
+        @Override
+        public void mouseClicked(MouseEvent me) {
+            Action a = mdls.joinAction();
+            if (a.isEnabled() && me.getClickCount() == 2 && me.getButton() == MouseEvent.BUTTON1) {
+                a.actionPerformed(new ActionEvent(me.getSource(), ActionEvent.ACTION_PERFORMED, "click"));
+            }
+        }
+    }
+
     class CtrlEntrAction extends AbstractAction {
 
         @Override
@@ -121,9 +136,9 @@ public class MainPanel extends javax.swing.JPanel implements NotificationListene
             } catch (BadLocationException ex) {
                 Logger.getLogger(MainPanel.class.getName()).log(Level.SEVERE, null, ex);
             }
-;
+            ;
         }
-        
+
     }
 
     class RoomMove extends AbstractAction {
