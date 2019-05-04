@@ -1,6 +1,6 @@
 package com.mastfrog.scamper.chat.crypto;
 
-import com.mastfrog.util.Exceptions;
+import com.mastfrog.util.preconditions.Exceptions;
 import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;

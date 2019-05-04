@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.mastfrog</groupId>
         <artifactId>scamper-chat</artifactId>
-        <version>2.1</version>
+        <version>2.2</version>
     </parent>
     <artifactId>scamper-chat-cli</artifactId>
     <name>Scamper Chat CLI</name>

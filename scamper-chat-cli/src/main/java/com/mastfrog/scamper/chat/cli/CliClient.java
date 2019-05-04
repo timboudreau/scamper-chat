@@ -6,7 +6,7 @@ import com.mastfrog.scamper.chat.spi.Client;
 import com.mastfrog.scamper.chat.spi.ClientControl;
 import com.mastfrog.scamper.chat.spi.Room;
 import com.mastfrog.settings.Settings;
-import com.mastfrog.util.Checks;
+import com.mastfrog.util.preconditions.Checks;
 import io.netty.channel.ChannelException;
 import java.security.InvalidKeyException;
 import java.util.Iterator;
