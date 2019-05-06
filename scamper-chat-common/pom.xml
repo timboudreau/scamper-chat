@@ -7,28 +7,46 @@
         <version>2.2</version>
     </parent>
     <artifactId>scamper-chat-common</artifactId>
-    <packaging>jar</packaging>
+    <scm>
+        <url>git@github.com:timboudreau/scamper-chat.git</url>
+        <connection>scm:git:https://github.com:timboudreau/scamper-chat.git</connection>
+        <developerConnection>git@github.com:timboudreau/scamper-chat.git</developerConnection>
+    </scm>
+    <issueManagement>
+        <system>Github</system>
+        <url>https://github.com:timboudreau/scamper-chat/issues</url>
+    </issueManagement><organization>
+        <name>Mastfrog Technologies</name>
+        <url>https://mastfrog.com</url>
+    </organization>
+    <licenses>
+        <license>
+            <name>MIT</name>
+            <url>https://opensource.org/licenses/MIT</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
     <name>Scamper Chat Common</name>
     <dependencies>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <version>2.9.8</version>
+            <version>${jackson.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.mastfrog</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>giulius-settings</artifactId>
-            <version>2.5.0-dev</version>
+            <version>${mastfrog.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.mastfrog</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>util-preconditions</artifactId>
-            <version>2.5.0-dev</version>
+            <version>${mastfrog.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.mastfrog</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>util-collections</artifactId>
-            <version>2.5.0-dev</version>
+            <version>${mastfrog.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.inject</groupId>
