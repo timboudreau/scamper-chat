@@ -427,8 +427,8 @@ public class UIModels {
                     prefs.setUserName(userName);
                     ctrl.setUserName(name);
                     for (int i = 0; i < roomMembers.size(); i++) {
-                        if (old.equals(roomMembers.get(i))) {
-                            roomMembers.setElementAt(userName, i);
+                        if (old.equals(roomMembers.getElementAt(i))) {
+                            roomMembers.set(i, userName);
                             break;
                         }
                     }
@@ -509,7 +509,7 @@ public class UIModels {
         public void actionPerformed(ActionEvent ae) {
             int ix = selectedRoom.getAnchorSelectionIndex();
             if (ix >= 0) {
-                RoomInfo info = rooms.get(ix);
+                RoomInfo info = rooms.getElementAt(ix);
                 if (room != null && room.name().equals(info.name)) {
                     Toolkit.getDefaultToolkit().beep();
                     return;

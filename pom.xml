@@ -4,10 +4,10 @@
     <parent>
         <groupId>com.mastfrog</groupId>
         <artifactId>scamper-parent</artifactId>
-        <version>2.2</version>
+        <version>2.3</version>
         <relativePath/>
     </parent>
-    <version>2.2</version>
+    <version>2.3</version>
     <artifactId>scamper-chat</artifactId>
     <scm>
         <url>git@github.com:timboudreau/scamper-chat.git</url>

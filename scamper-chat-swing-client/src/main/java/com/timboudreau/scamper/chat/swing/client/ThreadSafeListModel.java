@@ -1,22 +1,138 @@
+/*
+ * The MIT License
+ *
+ * Copyright 2022 Mastfrog Technologies.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.timboudreau.scamper.chat.swing.client;
 
 import java.awt.EventQueue;
-import java.lang.reflect.Array;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
-import javax.swing.DefaultListModel;
+import java.util.Objects;
+import javax.swing.ListModel;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 
 /**
- * ListModel implementation which is self-sorting and can be mutated
- * asynchronously from background threads.
  *
  * @author Tim Boudreau
  */
-class ThreadSafeListModel<T extends Comparable<T>> extends DefaultListModel<T> implements Iterable<T>, List<T> {
+class ThreadSafeListModel<T extends Comparable<T>> implements ListModel<T>, Iterable<T> {
+
+    private final List<T> items = new ArrayList<>();
+    private final List<ListDataListener> listeners = new ArrayList<>();
+
+    private void fire(ListDataEvent evt) {
+        for (ListDataListener l : listeners) {
+            switch (evt.getType()) {
+                case ListDataEvent.INTERVAL_ADDED:
+                    l.intervalAdded(evt);
+                    break;
+                case ListDataEvent.INTERVAL_REMOVED:
+                    l.intervalRemoved(evt);
+                    break;
+                default:
+                case ListDataEvent.CONTENTS_CHANGED:
+                    l.contentsChanged(evt);
+                    break;
+            }
+        }
+    }
+
+    int indexOf(T obj) {
+        return items.indexOf(obj);
+    }
+
+    int size() {
+        return items.size();
+    }
+
+    void set(int index, T obj) {
+        run(() -> {
+            T old = items.get(index);
+            if (Objects.equals(old, obj)) {
+                return;
+            }
+            items.set(index, obj);
+            fire(new ListDataEvent(this, ListDataEvent.CONTENTS_CHANGED, index, index));
+        });
+    }
+
+    void removeElement(T obj) {
+        run(() -> {
+            int ix = items.indexOf(obj);
+            items.remove(ix);
+            fire(new ListDataEvent(this, ListDataEvent.INTERVAL_REMOVED, ix, ix));
+        });
+    }
+
+    public void clear() {
+        run(() -> {
+            int sz = items.size();
+            items.clear();
+            if (sz > 0) {
+                fire(new ListDataEvent(this, ListDataEvent.INTERVAL_REMOVED, 0, sz - 1));
+            }
+        });
+    }
+
+    @Override
+    public int getSize() {
+        return items.size();
+    }
+
+    @Override
+    public T getElementAt(int index) {
+        return items.get(index);
+    }
+
+    @Override
+    public synchronized void addListDataListener(ListDataListener l) {
+        listeners.add(l);
+    }
+
+    @Override
+    public synchronized void removeListDataListener(ListDataListener l) {
+        listeners.remove(l);
+    }
+
+    public boolean contains(Object o) {
+        return items.contains(o);
+    }
+
+    public void addElement(T obj) {
+        run(() -> {
+            items.add(obj);
+            Collections.sort(items);
+            int ix = items.indexOf(obj);
+            fire(new ListDataEvent(this, ListDataEvent.INTERVAL_ADDED, ix, ix));
+        });
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return Collections.unmodifiableList(items).iterator();
+    }
 
     private void run(Runnable r) {
         if (EventQueue.isDispatchThread()) {
@@ -26,264 +142,4 @@ class ThreadSafeListModel<T extends Comparable<T>> extends DefaultListModel<T> i
         }
     }
 
-    @Override
-    public boolean contains(Object o) {
-        // Ensure we're doing an object equality check
-        if (o == null) {
-            return false;
-        }
-        if (this.stream().anyMatch((obj) -> (o.equals(obj)))) {
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public void removeRange(final int i, final int i1) {
-        run(() -> {
-            ThreadSafeListModel.super.removeRange(i, i1);
-        });
-    }
-
-    @Override
-    public void clear() {
-        run(() -> {
-            ThreadSafeListModel.super.clear();
-        });
-    }
-
-    @Override
-    public T remove(final int i) {
-        run(() -> {
-            ThreadSafeListModel.super.remove(i);
-        });
-        return null;
-    }
-
-    @Override
-    public void add(final int i, final T e) {
-        if (contains(e)) {
-            return;
-        }
-        run(() -> {
-            ThreadSafeListModel.super.add(i, e);
-            Collections.sort(ThreadSafeListModel.this);
-        });
-    }
-
-    @Override
-    public T set(final int i, final T e) {
-        run(() -> {
-            ThreadSafeListModel.super.set(i, e);
-            Collections.sort(ThreadSafeListModel.this);
-        });
-        return null;
-    }
-
-    @Override
-    public void removeAllElements() {
-        run(() -> {
-            ThreadSafeListModel.super.removeAllElements();
-        });
-    }
-
-    @Override
-    public boolean removeElement(final Object o) {
-        boolean result = contains(o);
-        run(() -> {
-            ThreadSafeListModel.super.removeElement(o);
-        });
-        return result;
-    }
-
-    @Override
-    public void addElement(final T e) {
-        if (contains(e)) {
-            return;
-        }
-        run(() -> {
-            if (!contains(e)) {
-                ThreadSafeListModel.super.addElement(e);
-                Collections.sort(ThreadSafeListModel.this);
-            }
-        });
-    }
-
-    @Override
-    public void removeElementAt(final int i) {
-        run(() -> {
-            ThreadSafeListModel.super.removeElementAt(i);
-        });
-    }
-
-    @Override
-    public void setElementAt(final T e, final int i) {
-        run(() -> {
-            ThreadSafeListModel.super.setElementAt(e, i);
-            Collections.sort(ThreadSafeListModel.this);
-        });
-    }
-
-    @Override
-    public void setSize(final int i) {
-        run(() -> {
-            ThreadSafeListModel.super.setSize(i);
-        });
-    }
-
-    @Override
-    public Iterator<T> iterator() {
-        return new Iter();
-    }
-
-    class Iter implements Iterator<T>, ListIterator<T> {
-
-        private int ix = 0;
-
-        @Override
-        public boolean hasNext() {
-            return ix < getSize();
-        }
-
-        @Override
-        public T next() {
-            return getElementAt(ix++);
-        }
-
-        @Override
-        public boolean hasPrevious() {
-            return ix > 0;
-        }
-
-        @Override
-        public T previous() {
-            return getElementAt(--ix);
-        }
-
-        @Override
-        public int nextIndex() {
-            return ix;
-        }
-
-        @Override
-        public int previousIndex() {
-            return ix - 1;
-        }
-
-        @Override
-        public void remove() {
-            ThreadSafeListModel.this.removeElementAt(ix - 1);
-        }
-
-        @Override
-        public void set(T e) {
-            ThreadSafeListModel.super.setElementAt(e, ix - 1);
-        }
-
-        @Override
-        public void add(T e) {
-            ThreadSafeListModel.this.addElement(e);
-        }
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T> T[] toArray(T[] ts) {
-        int size = getSize();
-        if (ts.length != size) {
-            ts = (T[]) Array.newInstance(ts.getClass().getComponentType(), size);
-        }
-        for (int i = 0; i < size; i++) {
-            ts[i] = (T) getElementAt(i);
-        }
-        return ts;
-    }
-
-    @Override
-    public boolean add(T e) {
-        boolean willAdd = contains(e);
-        addElement(e);
-        return willAdd;
-    }
-
-    @Override
-    public boolean remove(Object o) {
-        boolean willRemove = contains(o);
-        removeElement(o);
-        return willRemove;
-    }
-
-    @Override
-    public boolean containsAll(Collection<?> clctn) {
-        boolean result = true;
-        for (Object o : clctn) {
-            result &= contains(o);
-            if (!result) {
-                break;
-            }
-        }
-        return result;
-    }
-
-    @Override
-    public boolean addAll(Collection<? extends T> clctn) {
-        for (T obj : clctn) {
-            addElement(obj);
-        }
-        return true;
-    }
-
-    @Override
-    public boolean addAll(int i, Collection<? extends T> clctn) {
-        for (T obj : clctn) {
-            add(i, obj);
-        }
-        return true;
-    }
-
-    @Override
-    public boolean removeAll(Collection<?> clctn) {
-        boolean result = false;
-        for (Object o : clctn) {
-            result |= removeElement(o);
-        }
-        return result;
-    }
-
-    @Override
-    public boolean retainAll(Collection<?> clctn) {
-        boolean result = false;
-        for (T obj : this) {
-            if (!clctn.contains(obj)) {
-                result |= removeElement(obj);
-            }
-        }
-        return result;
-    }
-
-    @Override
-    public ListIterator<T> listIterator() {
-        return new Iter();
-    }
-
-    @Override
-    public ListIterator<T> listIterator(int i) {
-        Iter result = new Iter();
-        result.ix = i - 1;
-        return result;
-    }
-
-    @Override
-    public List<T> subList(int i, int i1) {
-        return toList().subList(i, i1);
-    }
-
-    private List<T> toList() {
-        List<T> result = new LinkedList<>();
-        int size = getSize();
-        for (int i = 0; i < size; i++) {
-            result.add(getElementAt(i));
-        }
-        return result;
-    }
 }
